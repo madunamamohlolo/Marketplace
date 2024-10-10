@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace DApp</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.5.2/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Marketplace Interface</h1>
+
+    <div>
+        <h2>Product Details</h2>
+        <button onclick="getProductDetails()">Fetch Product</button>
+        <p id="productInfo"></p>
+    </div>
+
+    <div>
+        <h2>Update Product</h2>
+        <input type="text" id="newProduct" placeholder="New Product Name">
+        <input type="number" id="newPrice" placeholder="New Price">
+        <button onclick="updateProduct()">Update Product</button>
+    </div>
+
+    <script>
+        let web3;
+        let contract;
+        const contractAddress = "0xYourDeployedContractAddress"; // Replace with your contract address
+        const contractABI = [ /* ABI here */ ];
+
+        window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                try {
+                    await ethereum.request({ method: 'eth_requestAccounts' });
+                    contract = new web3.eth.Contract(contractABI, contractAddress);
+                } catch (error) {
+                    console.error("User denied account access:", error);
+                }
+            } else {
+                alert("Please install MetaMask!");
+            }
+        });
+
+        async function getProductDetails() {
+            const details = await contract.methods.getProductDetails().call();
+            document.getElementById("productInfo").innerText = `Product: ${details[0]}, Price: ${details[1]}`;
+        }
+
+        async function updateProduct() {
+            const newProduct = document.getElementById("newProduct").value;
+            const newPrice = document.getElementById("newPrice").value;
+            const accounts = await web3.eth.getAccounts();
+
+            await contract.methods.updateProduct(newProduct, newPrice).send({ from: accounts[0] });
+            alert("Product updated successfully!");
+        }
+    </script>
+</body>
+</html>
